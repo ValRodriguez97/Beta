@@ -1,6 +1,8 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Model.Recurso;
+
+import co.edu.uniquindio.Gestion.de.Riesgos.Model.Recurso;
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRecurso;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,10 +73,8 @@ public class MapaRecursos {
     /**
      * Obtiene recursos por tipo
      */
-    public List<Recurso> obtenerRecursosPorTipo(com.example.proyecto_final.Enums.TipoRecurso tipo) {
-        return mapaRecursos.values().stream()
-            .filter(recurso -> recurso.getTipo() == tipo)
-            .collect(Collectors.toList());
+    public List<Recurso> obtenerRecursosPorTipo(TipoRecurso tipo) {
+        return mapaRecursos.values().stream().filter(recurso -> recurso.getTipo() == tipo).collect(Collectors.toList());
     }
     
     /**
@@ -98,8 +98,8 @@ public class MapaRecursos {
     /**
      * Calcula el total de recursos por tipo
      */
-    public Map<com.example.proyecto_final.Enums.TipoRecurso, Integer> calcularTotalPorTipo() {
-        Map<com.example.proyecto_final.Enums.TipoRecurso, Integer> totales = new HashMap<>();
+    public Map<TipoRecurso, Integer> calcularTotalPorTipo() {
+        Map<TipoRecurso, Integer> totales = new HashMap<>();
         
         for (Recurso recurso : mapaRecursos.values()) {
             totales.merge(recurso.getTipo(), recurso.getCantidadDisponible(), Integer::sum);
@@ -184,10 +184,9 @@ public class MapaRecursos {
         stats.append("=== ESTADÍSTICAS DEL MAPA DE RECURSOS ===\n");
         stats.append("Total de recursos: ").append(mapaRecursos.size()).append("\n");
         stats.append("Total de rutas: ").append(recursosPorRuta.size()).append("\n");
-        
-        Map<com.example.proyecto_final.Enums.TipoRecurso, Integer> totalesPorTipo = calcularTotalPorTipo();
+        Map<TipoRecurso, Integer> totalesPorTipo = calcularTotalPorTipo();
         stats.append("\nRecursos por tipo:\n");
-        for (Map.Entry<com.example.proyecto_final.Enums.TipoRecurso, Integer> entry : totalesPorTipo.entrySet()) {
+        for (Map.Entry<TipoRecurso, Integer> entry : totalesPorTipo.entrySet()) {
             stats.append("- ").append(entry.getKey().getDescripcion())
                  .append(": ").append(entry.getValue()).append("\n");
         }

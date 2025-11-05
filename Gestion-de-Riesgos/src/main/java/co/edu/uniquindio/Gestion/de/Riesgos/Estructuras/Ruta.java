@@ -1,7 +1,9 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Enums.TipoRuta;
-import com.example.proyecto_final.Model.Zona;
+
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRuta;
+import co.edu.uniquindio.Gestion.de.Riesgos.Model.Zona;
+
 import java.util.Objects;
 
 /**

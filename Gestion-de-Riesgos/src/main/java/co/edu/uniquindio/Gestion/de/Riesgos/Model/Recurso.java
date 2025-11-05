@@ -1,6 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Model;
 
-import com.example.proyecto_final.Enums.TipoRecurso;
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRecurso;
+
 import java.time.LocalDate;
 import java.util.Objects;
 

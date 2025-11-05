@@ -1,5 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Model;
 
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.Rol;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

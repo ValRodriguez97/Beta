@@ -1,6 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Model.Recurso;
+import co.edu.uniquindio.Gestion.de.Riesgos.Model.Recurso;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

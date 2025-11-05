@@ -1,5 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Model;
 
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRecurso;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -252,7 +254,7 @@ public class EquipoRescate {
     /**
      * Obtiene recursos por tipo
      */
-    public List<Recurso> obtenerRecursosPorTipo(com.example.proyecto_final.Enums.TipoRecurso tipo) {
+    public List<Recurso> obtenerRecursosPorTipo(TipoRecurso tipo) {
         return recursosAsignados.stream().filter(recurso -> recurso.getTipo() == tipo).toList();
     }
     

@@ -1,6 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Model.Evacuacion;
+import co.edu.uniquindio.Gestion.de.Riesgos.Model.Evacuacion;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

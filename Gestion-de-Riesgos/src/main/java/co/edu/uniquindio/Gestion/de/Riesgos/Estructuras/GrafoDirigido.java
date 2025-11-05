@@ -1,7 +1,8 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Interfaces.ICalcularRuta;
-import com.example.proyecto_final.Model.Zona;
+import co.edu.uniquindio.Gestion.de.Riesgos.Interfaces.ICalcularRuta;
+import co.edu.uniquindio.Gestion.de.Riesgos.Model.Zona;
+
 import java.util.*;
 
 /**

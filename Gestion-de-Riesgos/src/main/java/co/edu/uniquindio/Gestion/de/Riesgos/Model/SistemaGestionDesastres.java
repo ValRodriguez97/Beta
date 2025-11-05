@@ -1,6 +1,10 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Model;
 
-import com.example.proyecto_final.EstructurasDatos.*;
+
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.NivelUrgencia;
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRecurso;
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.TipoRuta;
+import co.edu.uniquindio.Gestion.de.Riesgos.Estructuras.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,13 +156,13 @@ public class SistemaGestionDesastres {
      */
     public Ruta conectarZonas(String idRuta, String idOrigen, String idDestino,
                               double distancia, double tiempo,
-                              com.example.proyecto_final.Enums.TipoRuta tipo) {
+                              TipoRuta tipo) {
         Zona origen = zonas.stream().filter(z -> z.getId().equals(idOrigen)).findFirst().orElse(null);
         Zona destino = zonas.stream().filter(z -> z.getId().equals(idDestino)).findFirst().orElse(null);
         if (origen == null || destino == null) return null;
 
-        com.example.proyecto_final.EstructurasDatos.Ruta r =
-                new com.example.proyecto_final.EstructurasDatos.Ruta(idRuta, origen, destino, distancia, tiempo, tipo);
+        Ruta r =
+                new Ruta(idRuta, origen, destino, distancia, tiempo, tipo);
         if (agregarRuta(r)) {
             return r;
         }
@@ -182,7 +186,7 @@ public class SistemaGestionDesastres {
     /**
      * Retorna la mejor ruta por tiempo estimado entre dos zonas (si existe).
      */
-    public com.example.proyecto_final.EstructurasDatos.Ruta calcularRutaMasRapida(String idOrigen, String idDestino) {
+    public Ruta calcularRutaMasRapida(String idOrigen, String idDestino) {
         Zona o = zonas.stream().filter(z -> z.getId().equals(idOrigen)).findFirst().orElse(null);
         Zona d = zonas.stream().filter(z -> z.getId().equals(idDestino)).findFirst().orElse(null);
         if (o == null || d == null) return null;
@@ -270,8 +274,8 @@ public class SistemaGestionDesastres {
         return true;
     }
     /** Resumen total de recursos disponibles agrupado por tipo. */
-    public java.util.Map<com.example.proyecto_final.Enums.TipoRecurso, Integer> resumenRecursosPorTipo() {
-        java.util.Map<com.example.proyecto_final.Enums.TipoRecurso, Integer> tot = new java.util.HashMap<>();
+    public java.util.Map<TipoRecurso, Integer> resumenRecursosPorTipo() {
+        java.util.Map<TipoRecurso, Integer> tot = new java.util.HashMap<>();
         for (Recurso r : recursos) {
             tot.merge(r.getTipo(), r.getCantidadDisponible(), Integer::sum);
         }
@@ -299,7 +303,7 @@ public class SistemaGestionDesastres {
             String idZonaOrigen,
             String idZonaDestino,
             int personasAEvacuar,
-            com.example.proyecto_final.Enums.NivelUrgencia urgencia,
+            NivelUrgencia urgencia,
             String responsable) {
 
         Zona origen = buscarZona(idZonaOrigen);

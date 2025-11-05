@@ -1,6 +1,7 @@
 package co.edu.uniquindio.Gestion.de.Riesgos.Estructuras;
 
-import com.example.proyecto_final.Enums.NivelUrgencia;
+import co.edu.uniquindio.Gestion.de.Riesgos.Enums.NivelUrgencia;
+
 import java.util.Objects;
 
 /**
