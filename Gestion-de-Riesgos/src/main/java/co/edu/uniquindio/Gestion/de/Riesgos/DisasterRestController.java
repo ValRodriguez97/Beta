@@ -356,6 +356,159 @@ public class DisasterRestController {
         }
     }
 
+    // MapaRecursos: recursos por ruta
+    @GetMapping("/mapa/recursos/ruta/{rutaId}")
+    public ResponseEntity<List<Map<String, Object>>> obtenerRecursosPorRuta(@PathVariable String rutaId) {
+        Ruta ruta = sistema.buscarRuta(rutaId);
+        if (ruta == null) return ResponseEntity.notFound().build();
+
+        List<Recurso> recursos = sistema.obtenerRecursosPorRuta(ruta);
+        if (recursos == null) recursos = Collections.emptyList();
+
+        List<Map<String, Object>> data = recursos.stream().map(rec -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", rec.getId());
+            m.put("nombre", rec.getNombre());
+            m.put("tipo", rec.getTipo() != null ? rec.getTipo().getDescripcion() : null);
+            m.put("cantidadDisponible", rec.getCantidadDisponible());
+            m.put("unidadMedida", rec.getUnidadMedida());
+            return m;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(data);
+    }
+
+    // MapaRecursos: rutas por recurso
+    @GetMapping("/mapa/rutas/recurso/{recursoId}")
+    public ResponseEntity<List<Map<String, Object>>> obtenerRutasPorRecurso(@PathVariable String recursoId) {
+        Recurso recurso = sistema.buscarRecurso(recursoId);
+        if (recurso == null) return ResponseEntity.notFound().build();
+
+        List<Ruta> rutas = sistema.obtenerRutasPorRecurso(recurso);
+        if (rutas == null) rutas = Collections.emptyList();
+
+        List<Map<String, Object>> data = rutas.stream().map(rt -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", rt.getId());
+            m.put("origenId", rt.getOrigen() != null ? rt.getOrigen().getId() : null);
+            m.put("destinoId", rt.getDestino() != null ? rt.getDestino().getId() : null);
+            m.put("distancia", rt.getDistancia());
+            m.put("tiempoEstimado", rt.getTiempoEstimado());
+            return m;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(data);
+    }
+
+    // Grafo: obtener rutas desde un nodo
+    @GetMapping("/grafo/rutas/desde/{idOrigen}")
+    public ResponseEntity<List<Map<String, Object>>> obtenerRutasDesdeGrafo(@PathVariable String idOrigen) {
+        List<Ruta> rutas = sistema.obtenerRutasDesdeGrafo(idOrigen);
+        if (rutas == null) rutas = Collections.emptyList();
+
+        List<Map<String, Object>> data = rutas.stream().map(rt -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", rt.getId());
+            m.put("origenId", rt.getOrigen() != null ? rt.getOrigen().getId() : null);
+            m.put("destinoId", rt.getDestino() != null ? rt.getDestino().getId() : null);
+            m.put("distancia", rt.getDistancia());
+            m.put("tiempoEstimado", rt.getTiempoEstimado());
+            return m;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(data);
+    }
+
+    // Grafo: obtener rutas hacia un nodo
+    @GetMapping("/grafo/rutas/hasta/{idDestino}")
+    public ResponseEntity<List<Map<String, Object>>> obtenerRutasHaciaGrafo(@PathVariable String idDestino) {
+        List<Ruta> rutas = sistema.obtenerRutasHaciaGrafo(idDestino);
+        if (rutas == null) rutas = Collections.emptyList();
+
+        List<Map<String, Object>> data = rutas.stream().map(rt -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", rt.getId());
+            m.put("origenId", rt.getOrigen() != null ? rt.getOrigen().getId() : null);
+            m.put("destinoId", rt.getDestino() != null ? rt.getDestino().getId() : null);
+            m.put("distancia", rt.getDistancia());
+            m.put("tiempoEstimado", rt.getTiempoEstimado());
+            return m;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(data);
+    }
+
+    // Grafo: obtener nodo por id (retorna representación mínima)
+    @GetMapping("/grafo/nodo/{id}")
+    public ResponseEntity<Map<String, Object>> obtenerNodoGrafo(@PathVariable String id) {
+        Nodo nodo = sistema.obtenerNodoGrafo(id);
+        if (nodo == null) return ResponseEntity.notFound().build();
+        Map<String, Object> nodoMap = new HashMap<>();
+        nodoMap.put("id", nodo.getId());
+        nodoMap.put("nombre", nodo.getNombre());
+        nodoMap.put("coordenadaX", nodo.getCoordenadaX());
+        nodoMap.put("coordenadaY", nodo.getCoordenadaY());
+        nodoMap.put("nivelUrgencia", nodo.getNivelUrgencia() != null ? nodo.getNivelUrgencia().getDescripcion() : null);
+        nodoMap.put("activo", nodo.isActivo());
+        return ResponseEntity.ok(nodoMap);
+    }
+
+    // ColaPrioridad: ver / procesar / priorizar
+    @GetMapping("/cola/verSiguiente")
+    public ResponseEntity<Map<String, Object>> verSiguienteEvacuacion() {
+        Evacuacion ev = sistema.verSiguienteEvacuacionCola();
+        if (ev == null) return ResponseEntity.ok(Map.of("siguiente", null));
+        return ResponseEntity.ok(Map.of(
+                "id", ev.getId(),
+                "nombre", ev.getNombre(),
+                "nivelUrgencia", ev.getNivelUrgencia().getDescripcion(),
+                "personasAEvacuar", ev.getPersonasAEvacuar(),
+                "prioridad", ev.calcularPrioridad()
+        ));
+    }
+
+    @PostMapping("/cola/priorizar")
+    public ResponseEntity<Map<String, Object>> priorizarCola() {
+        sistema.priorizarCola();
+        return ResponseEntity.ok(Map.of("success", true, "message", "Cola priorizada"));
+    }
+
+    @PostMapping("/cola/procesar")
+    public ResponseEntity<Map<String, Object>> procesarSiguienteEvacuacion() {
+        Evacuacion ev = sistema.procesarSiguienteEvacuacion();
+        if (ev == null) return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("success", false, "message", "No hay evacuaciones"));
+        return ResponseEntity.ok(Map.of("success", true, "id", ev.getId(), "estado", ev.getEstado().name()));
+    }
+
+    // ArbolDistribucion: crear raiz y agregar nodo (usa recurso existente)
+    @PostMapping("/arbol/crearRaiz")
+    public ResponseEntity<Map<String, Object>> crearRaizArbol(@RequestBody Map<String, Object> body) {
+        String recursoId = (String) body.get("recursoId");
+        int cantidad = ((Number) body.getOrDefault("cantidad", 0)).intValue();
+        Recurso recurso = sistema.buscarRecurso(recursoId);
+        if (recurso == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "Recurso no encontrado"));
+        sistema.crearNodoRaizArbol(recurso, cantidad);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PostMapping("/arbol/agregarNodo")
+    public ResponseEntity<Map<String, Object>> agregarNodoArbol(@RequestBody Map<String, Object> body) {
+        String id = (String) body.get("id");
+        String recursoId = (String) body.get("recursoId");
+        int cantidad = ((Number) body.getOrDefault("cantidad", 0)).intValue();
+        String idPadre = (String) body.get("idPadre");
+        Recurso recurso = sistema.buscarRecurso(recursoId);
+        if (recurso == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", "Recurso no encontrado"));
+        sistema.agregarNodoArbol(id, recurso, cantidad, idPadre);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/arbol/total")
+    public ResponseEntity<Map<String, Object>> obtenerCantidadTotalArbol() {
+        int total = sistema.calcularCantidadTotalEnArbol();
+        return ResponseEntity.ok(Map.of("total", total));
+    }
+
     // ============ ENDPOINTS DE ESTADÍSTICAS ============
 
     @GetMapping("/estadisticas")

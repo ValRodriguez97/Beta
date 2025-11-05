@@ -638,10 +638,86 @@
         <!-- Routes Section -->
         <div id="routesSection" class="routes-section hidden">
             <h2 style="margin-bottom: 20px;">🚨 Rutas de Evacuación</h2>
-            <div id="routesList" class="loading">Cargando rutas</div>
 
-            <h2 style="margin-top: 40px; margin-bottom: 20px;">📦 Recursos Disponibles</h2>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:320px">
+                    <div id="routesList" class="loading">Cargando rutas</div>
+                </div>
+
+                <!-- Herramientas nuevas para endpoints adicionales -->
+                <div style="flex:1;min-width:320px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.05);">
+                    <h3>Herramientas de Rutas / Recursos</h3>
+
+                    <label>Recursos por Ruta (id)</label>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input id="inputRutaId" type="text" placeholder="ej. R001" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="consultarRecursosPorRuta()">Consultar</button>
+                    </div>
+
+                    <div id="recursosPorRutaResult" style="max-height:180px;overflow:auto;margin-bottom:12px;"></div>
+
+                    <label>Rutas por Recurso (id)</label>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input id="inputRecursoId" type="text" placeholder="ej. R001" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="consultarRutasPorRecurso()">Consultar</button>
+                    </div>
+
+                    <div id="rutasPorRecursoResult" style="max-height:180px;overflow:auto;margin-bottom:12px;"></div>
+
+                    <hr/>
+
+                    <label>Grafo - Rutas desde (zonaId)</label>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input id="inputGrafoDesde" type="text" placeholder="ej. Z001" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="consultarGrafoDesde()">Ver</button>
+                    </div>
+                    <div id="grafoDesdeResult" style="max-height:120px;overflow:auto;margin-bottom:12px;"></div>
+
+                    <label>Grafo - Rutas hasta (zonaId)</label>
+                    <div style="display:flex;gap:8px;margin-bottom:12px;">
+                        <input id="inputGrafoHasta" type="text" placeholder="ej. Z002" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="consultarGrafoHasta()">Ver</button>
+                    </div>
+                    <div id="grafoHastaResult" style="max-height:120px;overflow:auto;margin-bottom:12px;"></div>
+
+                </div>
+            </div>
+
+            <h2 style="margin-top: 20px;">📦 Recursos Disponibles</h2>
             <div id="resourcesList" class="resources-grid loading">Cargando recursos</div>
+
+            <!-- Panel ColaPrioridad y ArbolDistribucion -->
+            <div style="margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;">
+                <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.05);min-width:320px;">
+                    <h3>Cola Prioridad</h3>
+                    <button class="btn-action" onclick="verSiguiente()">Ver siguiente</button>
+                    <button class="btn-action" onclick="priorizarCola()">Priorizar</button>
+                    <button class="btn-action" onclick="procesarSiguiente()">Procesar</button>
+                    <div id="colaResult" style="margin-top:12px;max-height:160px;overflow:auto;"></div>
+                </div>
+
+                <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.05);min-width:320px;">
+                    <h3>Árbol de Distribución</h3>
+                    <label>Crear raíz: recursoId / cantidad</label>
+                    <div style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input id="arbolRecursoId" type="text" placeholder="recursoId" style="flex:1;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <input id="arbolCantidad" type="number" placeholder="cantidad" style="width:100px;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="crearRaizArbol()">Crear</button>
+                    </div>
+
+                    <label>Agregar nodo: id / recursoId / cantidad / idPadre</label>
+                    <div style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input id="nodoId" placeholder="id" style="padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <input id="nodoRecursoId" placeholder="recursoId" style="padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <input id="nodoCantidad" type="number" placeholder="cant" style="width:80px;padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <input id="nodoPadreId" placeholder="idPadre" style="padding:8px;border-radius:6px;border:1px solid #ddd;">
+                        <button class="btn-action" onclick="agregarNodoArbol()">Agregar</button>
+                    </div>
+
+                    <button class="btn-action" onclick="obtenerTotalArbol()">Total en árbol</button>
+                    <div id="arbolResult" style="margin-top:12px;max-height:160px;overflow:auto;"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -667,11 +743,13 @@
         try {
             const response = await fetch(`${API_URL}/estadisticas`);
             if (response.ok) {
+                document.getElementById('apiIndicator').classList.remove('error');
                 document.getElementById('apiIndicator').classList.add('connected');
                 document.getElementById('apiStatus').textContent = 'API Conectada';
                 return true;
             }
         } catch (error) {
+            document.getElementById('apiIndicator').classList.remove('connected');
             document.getElementById('apiIndicator').classList.add('error');
             document.getElementById('apiStatus').textContent = 'API Desconectada';
             console.error('Error conectando con API:', error);
@@ -887,6 +965,191 @@
         }
     }
 
+    // ----- Nuevas funciones para los endpoints añadidos -----
+
+    async function consultarRecursosPorRuta() {
+        const rutaId = document.getElementById('inputRutaId').value.trim();
+        const container = document.getElementById('recursosPorRutaResult');
+        container.innerHTML = 'Cargando...';
+        try {
+            const res = await fetch(`${API_URL}/mapa/recursos/ruta/${encodeURIComponent(rutaId)}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Ruta no encontrada');
+            }
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) container.innerHTML = '<i>No hay recursos en esa ruta</i>';
+            else {
+                container.innerHTML = '';
+                data.forEach(r => {
+                    const div = document.createElement('div');
+                    div.style.padding = '6px 0';
+                    div.innerHTML = `<b>${r.nombre}</b> — ${r.tipo || 'N/A'} — ${r.cantidadDisponible || 0} ${r.unidadMedida || ''}`;
+                    container.appendChild(div);
+                });
+            }
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function consultarRutasPorRecurso() {
+        const recursoId = document.getElementById('inputRecursoId').value.trim();
+        const container = document.getElementById('rutasPorRecursoResult');
+        container.innerHTML = 'Cargando...';
+        try {
+            const res = await fetch(`${API_URL}/mapa/rutas/recurso/${encodeURIComponent(recursoId)}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Recurso no encontrado');
+            }
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) container.innerHTML = '<i>No hay rutas asociadas</i>';
+            else {
+                container.innerHTML = '';
+                data.forEach(rt => {
+                    const div = document.createElement('div');
+                    div.style.padding = '6px 0';
+                    div.innerHTML = `<b>${rt.id}</b> — ${rt.origenId || 'N/A'} → ${rt.destinoId || 'N/A'} — ${rt.distancia || 0} km`;
+                    container.appendChild(div);
+                });
+            }
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function consultarGrafoDesde() {
+        const id = document.getElementById('inputGrafoDesde').value.trim();
+        const container = document.getElementById('grafoDesdeResult');
+        container.innerHTML = 'Cargando...';
+        try {
+            const res = await fetch(`${API_URL}/grafo/rutas/desde/${encodeURIComponent(id)}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Error al consultar grafo');
+            }
+            const data = await res.json();
+            container.innerHTML = (Array.isArray(data) && data.length) ? data.map(rt => `<div style="padding:6px 0">${rt.origenId || 'N/A'} → ${rt.destinoId || 'N/A'} (${rt.distancia || 0} km)</div>`).join('') : '<i>No hay rutas</i>';
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function consultarGrafoHasta() {
+        const id = document.getElementById('inputGrafoHasta').value.trim();
+        const container = document.getElementById('grafoHastaResult');
+        container.innerHTML = 'Cargando...';
+        try {
+            const res = await fetch(`${API_URL}/grafo/rutas/hasta/${encodeURIComponent(id)}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Error al consultar grafo');
+            }
+            const data = await res.json();
+            container.innerHTML = (Array.isArray(data) && data.length) ? data.map(rt => `<div style="padding:6px 0">${rt.origenId || 'N/A'} → ${rt.destinoId || 'N/A'} (${rt.distancia || 0} km)</div>`).join('') : '<i>No hay rutas</i>';
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    // ColaPrioridad endpoints
+    async function verSiguiente() {
+        const container = document.getElementById('colaResult');
+        container.innerHTML = 'Cargando...';
+        try {
+            const res = await fetch(`${API_URL}/cola/verSiguiente`);
+            if (!res.ok) throw new Error('Error al obtener siguiente');
+            const data = await res.json();
+            container.innerHTML = data && data.id ? `<b>${data.nombre}</b> — Nivel: ${data.nivelUrgencia || 'N/A'} — Personas: ${data.personasAEvacuar || 0}` : '<i>No hay evacuaciones</i>';
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function priorizarCola() {
+        try {
+            const res = await fetch(`${API_URL}/cola/priorizar`, { method: 'POST' });
+            const data = await res.json();
+            document.getElementById('colaResult').innerText = data.message || 'Cola priorizada';
+        } catch (e) {
+            document.getElementById('colaResult').innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function procesarSiguiente() {
+        try {
+            const res = await fetch(`${API_URL}/cola/procesar`, { method: 'POST' });
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'No hay evacuaciones');
+            }
+            const data = await res.json();
+            document.getElementById('colaResult').innerText = data.message || JSON.stringify(data);
+            showNotifications();
+        } catch (e) {
+            document.getElementById('colaResult').innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    // ArbolDistribucion endpoints
+    async function crearRaizArbol() {
+        const recursoId = document.getElementById('arbolRecursoId').value.trim();
+        const cantidad = Number(document.getElementById('arbolCantidad').value || 0);
+        const container = document.getElementById('arbolResult');
+        container.innerHTML = 'Creando...';
+        try {
+            const res = await fetch(`${API_URL}/arbol/crearRaiz`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ recursoId, cantidad })
+            });
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Error creando raíz');
+            }
+            const data = await res.json();
+            container.innerText = JSON.stringify(data);
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function agregarNodoArbol() {
+        const id = document.getElementById('nodoId').value.trim();
+        const recursoId = document.getElementById('nodoRecursoId').value.trim();
+        const cantidad = Number(document.getElementById('nodoCantidad').value || 0);
+        const idPadre = document.getElementById('nodoPadreId').value.trim();
+        const container = document.getElementById('arbolResult');
+        container.innerHTML = 'Agregando...';
+        try {
+            const res = await fetch(`${API_URL}/arbol/agregarNodo`, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ id, recursoId, cantidad, idPadre })
+            });
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || 'Error agregando nodo');
+            }
+            const data = await res.json();
+            container.innerText = JSON.stringify(data);
+        } catch (e) {
+            container.innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
+    async function obtenerTotalArbol() {
+        try {
+            const res = await fetch(`${API_URL}/arbol/total`);
+            if (!res.ok) throw new Error('Error obteniendo total');
+            const data = await res.json();
+            document.getElementById('arbolResult').innerText = 'Total en árbol: ' + (data.total ?? 0);
+        } catch (e) {
+            document.getElementById('arbolResult').innerHTML = `<span style="color:red">${e.message}</span>`;
+        }
+    }
+
     async function showRoutes() {
         document.getElementById('mapSection').classList.add('hidden');
         document.getElementById('reportsSection').classList.add('hidden');
@@ -907,18 +1170,18 @@
                 item.innerHTML = `
                         <h4>Ruta ${ruta.id}</h4>
                         <div class="route-details">
-                            <span>📍 Origen: ${ruta.origen.nombre}</span>
-                            <span>🎯 Destino: ${ruta.destino.nombre}</span>
-                            <span>📏 Distancia: ${ruta.distancia.toFixed(2)} km</span>
-                            <span>⏱️ Tiempo: ${ruta.tiempoEstimado.toFixed(1)} hrs</span>
-                            <span>🚗 Tipo: ${ruta.tipo}</span>
+                            <span>📍 Origen: ${ruta.origen?.nombre || 'N/A'}</span>
+                            <span>🎯 Destino: ${ruta.destino?.nombre || 'N/A'}</span>
+                            <span>📏 Distancia: ${Number(ruta.distancia || 0).toFixed(2)} km</span>
+                            <span>⏱️ Tiempo: ${Number(ruta.tiempoEstimado || 0).toFixed(1)} hrs</span>
+                            <span>🚗 Tipo: ${ruta.tipo || 'N/A'}</span>
                         </div>
                     `;
                 routesList.appendChild(item);
             });
         } catch (error) {
             document.getElementById('routesList').innerHTML = '<p style="color: red;">Error cargando rutas</p>';
-            console.error('Error:', error);
+            console.error('Error cargando rutas:', error);
         }
 
         // Cargar recursos
@@ -930,16 +1193,13 @@
             resourcesList.innerHTML = '';
             resourcesList.classList.remove('loading');
 
-            // Agrupar recursos por tipo
             const recursosPorTipo = {};
             recursos.forEach(recurso => {
-                if (!recursosPorTipo[recurso.tipo]) {
-                    recursosPorTipo[recurso.tipo] = {
-                        cantidad: 0,
-                        icono: getRecursoIcon(recurso.tipo)
-                    };
+                const tipo = recurso.tipo || 'Desconocido';
+                if (!recursosPorTipo[tipo]) {
+                    recursosPorTipo[tipo] = { cantidad: 0, icono: getRecursoIcon(tipo) };
                 }
-                recursosPorTipo[recurso.tipo].cantidad += recurso.cantidadDisponible;
+                recursosPorTipo[tipo].cantidad += recurso.cantidadDisponible || 0;
             });
 
             Object.keys(recursosPorTipo).forEach(tipo => {
@@ -954,7 +1214,7 @@
             });
         } catch (error) {
             document.getElementById('resourcesList').innerHTML = '<p style="color: red;">Error cargando recursos</p>';
-            console.error('Error:', error);
+            console.error('Error cargando recursos:', error);
         }
     }
 
@@ -981,7 +1241,7 @@
             notificationsList.innerHTML = '';
             notificationsList.classList.remove('loading');
 
-            if (evacuaciones.length === 0) {
+            if (!Array.isArray(evacuaciones) || evacuaciones.length === 0) {
                 notificationsList.innerHTML = '<p style="text-align: center; color: #666;">No hay notificaciones</p>';
                 return;
             }
@@ -992,16 +1252,16 @@
                 item.innerHTML = `
                         <div class="report-info">
                             <h3>🚨 ${evac.nombre}</h3>
-                            <p>Nivel: ${evac.nivelUrgencia}</p>
-                            <p>Personas: ${evac.personasEvacuadas}/${evac.personasAEvacuar}</p>
-                            <p>Estado: ${evac.estado}</p>
+                            <p>Nivel: ${evac.nivelUrgencia || 'N/A'}</p>
+                            <p>Personas: ${evac.personasEvacuadas || 0}/${evac.personasAEvacuar || 0}</p>
+                            <p>Estado: ${evac.estado || 'N/A'}</p>
                         </div>
                     `;
                 notificationsList.appendChild(item);
             });
         } catch (error) {
             document.getElementById('notificationsList').innerHTML = '<p style="color: red;">Error cargando notificaciones</p>';
-            console.error('Error:', error);
+            console.error('Error cargando notificaciones:', error);
         }
     }
 

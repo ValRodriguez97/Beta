@@ -1,3 +1,4 @@
+// ...existing code...
 package co.edu.uniquindio.Gestion.de.Riesgos.Model;
 
 
@@ -414,6 +415,140 @@ public class SistemaGestionDesastres {
         return sb.toString();
     }
 
+    // --- Delegaciones / Wrappers seguros hacia otras estructuras ---
+    // MapaRecursos (delegaciones limitadas a métodos comúnmente presentes)
+    public List<Recurso> obtenerRecursosPorRuta(Ruta ruta) {
+        if (mapaRecursos == null || ruta == null) return new ArrayList<>();
+        return mapaRecursos.obtenerRecursos(ruta);
+    }
+
+    public List<Ruta> obtenerRutasPorRecurso(Recurso recurso) {
+        if (mapaRecursos == null || recurso == null) return new ArrayList<>();
+        return mapaRecursos.obtenerRutas(recurso);
+    }
+
+    public Recurso obtenerRecursoMapa(String recursoId) {
+        if (mapaRecursos == null || recursoId == null) return null;
+        return mapaRecursos.obtenerRecurso(recursoId);
+    }
+
+    public List<Recurso> obtenerTodosLosRecursosMapa() {
+        if (mapaRecursos == null) return new ArrayList<>();
+        return mapaRecursos.obtenerTodosLosRecursos();
+    }
+
+    public List<Recurso> obtenerRecursosPorTipoMapa(TipoRecurso tipo) {
+        if (mapaRecursos == null || tipo == null) return new ArrayList<>();
+        return mapaRecursos.obtenerRecursosPorTipo(tipo);
+    }
+
+    // GrafoDirigido
+    public void agregarNodoAlGrafo(Nodo nodo) {
+        if (grafoDirigido != null && nodo != null) grafoDirigido.agregarNodo(nodo);
+    }
+
+    public Nodo obtenerNodoGrafo(String id) {
+        if (grafoDirigido == null || id == null) return null;
+        return grafoDirigido.obtenerNodo(id);
+    }
+
+    public List<Ruta> obtenerRutasDesdeGrafo(String idOrigen) {
+        if (grafoDirigido == null || idOrigen == null) return new ArrayList<>();
+        return grafoDirigido.obtenerRutasDesde(idOrigen);
+    }
+
+    public List<Ruta> obtenerRutasHaciaGrafo(String idDestino) {
+        if (grafoDirigido == null || idDestino == null) return new ArrayList<>();
+        return grafoDirigido.obtenerRutasHacia(idDestino);
+    }
+
+    public boolean existeRutaEnGrafo(String idOrigen, String idDestino) {
+        if (grafoDirigido == null || idOrigen == null || idDestino == null) return false;
+        return grafoDirigido.existeRuta(idOrigen, idDestino);
+    }
+
+    // ColaPrioridad
+    public Evacuacion verSiguienteEvacuacionCola() {
+        if (colaPrioridad == null) return null;
+        return colaPrioridad.verSiguienteEvacuacion();
+    }
+
+    public boolean estaVaciaCola() {
+        return colaPrioridad == null || colaPrioridad.estaVacia();
+    }
+
+    public int obtenerTamanoCola() {
+        return colaPrioridad == null ? 0 : colaPrioridad.obtenerTamano();
+    }
+
+    public List<Evacuacion> obtenerTodasEvacuacionesCola() {
+        if (colaPrioridad == null) return new ArrayList<>();
+        return colaPrioridad.obtenerTodasLasEvacuaciones();
+    }
+
+    public List<Evacuacion> obtenerHistorialEvacuaciones() {
+        if (colaPrioridad == null) return new ArrayList<>();
+        return colaPrioridad.obtenerHistorial();
+    }
+
+    public void priorizarCola() {
+        if (colaPrioridad != null) colaPrioridad.priorizar();
+    }
+
+    // ArbolDistribucion
+    public void crearNodoRaizArbol(Recurso recurso, int cantidad) {
+        if (arbolDistribucion != null) arbolDistribucion.crearNodoRaiz(recurso, cantidad);
+    }
+
+    public void agregarNodoArbol(String id, Recurso recurso, int cantidad, String idPadre) {
+        if (arbolDistribucion != null) arbolDistribucion.agregarNodo(id, recurso, cantidad, idPadre);
+    }
+
+    public ArbolDistribucion.NodoDistribucion buscarNodoArbol(String id) {
+        if (arbolDistribucion == null || id == null) return null;
+        return arbolDistribucion.buscarNodo(id);
+    }
+
+    public boolean arbolTieneRecursosSuficientes(int cantidadRequerida) {
+        if (arbolDistribucion == null) return false;
+        return arbolDistribucion.tieneRecursosSuficientes(cantidadRequerida);
+    }
+
+    public int calcularCantidadTotalEnArbol() {
+        if (arbolDistribucion == null) return 0;
+        return arbolDistribucion.calcularCantidadTotal();
+    }
+
+    // Helpers / utilidades
+    public Usuario buscarUsuarioPorId(String id) {
+        if (id == null) return null;
+        for (Usuario u : usuarios) if (id.equals(u.getId())) return u;
+        return null;
+    }
+
+    public boolean eliminarUsuarioPorId(String id) {
+        Usuario u = buscarUsuarioPorId(id);
+        if (u != null) return usuarios.remove(u);
+        return false;
+    }
+
+    public void iniciarEvacuacion(Evacuacion ev) {
+        if (ev != null) ev.iniciarEvacuacion();
+    }
+
+    public void cancelarEvacuacion(Evacuacion ev) {
+        if (ev != null) ev.cancelarEvacuacion();
+    }
+
+    public void suspenderEvacuacion(Evacuacion ev) {
+        if (ev != null) ev.suspenderEvacuacion();
+    }
+
+    public void reanudarEvacuacion(Evacuacion ev) {
+        if (ev != null) ev.reanudarEvacuacion();
+    }
+
+    // ...existing code...
     // Getters
     public List<Usuario> getUsuarios() {
         return new ArrayList<>(usuarios);
@@ -461,3 +596,4 @@ public class SistemaGestionDesastres {
             usuarios.size(), recursos.size(), evacuaciones.size(), rutas.size(), zonas.size(), equipos.size());
     }
 }
+// ...existing code...
