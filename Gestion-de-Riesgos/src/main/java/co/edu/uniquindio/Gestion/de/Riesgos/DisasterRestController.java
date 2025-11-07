@@ -55,26 +55,62 @@ public class DisasterRestController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> userData) {
         try {
-            String id = "U" + (sistema.getUsuarios().size() + 1);
-            Usuario nuevoUsuario = new Administrador(
-                    id,
-                    userData.get("nombre"),
-                    userData.get("apellido"),
-                    userData.get("email"),
-                    userData.get("username"),
-                    userData.get("password"),
-                    "General"
-            );
+            // Validar que el username no exista
+            boolean usernameExists = sistema.getUsuarios().stream()
+                    .anyMatch(u -> u.getUsername().equals(userData.get("username")));
+
+            if (usernameExists) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "El nombre de usuario ya existe"));
+            }
+
+            // Validar que el email no exista
+            boolean emailExists = sistema.getUsuarios().stream()
+                    .anyMatch(u -> u.getEmail().equals(userData.get("email")));
+
+            if (emailExists) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "El correo electrónico ya está registrado"));
+            }
+
+            String id = "U" + String.format("%03d", sistema.getUsuarios().size() + 1);
+            String rol = userData.getOrDefault("rol", "OPERADOR_EMERGENCIA");
+
+            Usuario nuevoUsuario;
+
+            if ("ADMINISTRADOR".equals(rol)) {
+                nuevoUsuario = new Administrador(
+                        id,
+                        userData.get("nombre"),
+                        userData.get("apellido"),
+                        userData.get("email"),
+                        userData.get("username"),
+                        userData.get("password"),
+                        userData.getOrDefault("departamento", "General")
+                );
+            } else {
+                nuevoUsuario = new OperadorEmergencia(
+                        id,
+                        userData.get("nombre"),
+                        userData.get("apellido"),
+                        userData.get("email"),
+                        userData.get("username"),
+                        userData.get("password"),
+                        userData.getOrDefault("especialidad", "Emergencias"),
+                        userData.getOrDefault("ubicacion", "Sin asignar")
+                );
+            }
 
             sistema.agregarUsuario(nuevoUsuario);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Usuario registrado exitosamente"
+                    "message", "Usuario registrado exitosamente",
+                    "userId", id
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "message", e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error al registrar usuario: " + e.getMessage()));
         }
     }
 
